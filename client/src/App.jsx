@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import SellForm from './components/SellForm'
 import './App.css'
 
 function App() {
 
   useEffect(() => {
-    fetch('http://localhost:3001/')
+    fetch('http://localhost:3333/')
       .then(res => res.text())
       .then(data => console.log(data))
   }, [])
   return (
     <>
-    
+    <SellForm></SellForm>
     </>
   )
 }

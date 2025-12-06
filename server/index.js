@@ -4,6 +4,9 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const Listing = require('./models/Listing')
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config()
 
 const app = express();
 
@@ -36,5 +39,5 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => console.log(err));
 
 app.listen(process.env.PORT, () => {
-    console.log('Server running on port 3001')
+    console.log('Server running')
 })

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
@@ -29,10 +31,10 @@ app.get('/api/listings', async(req, res) => {
     }
 })
 
-mongoose.connect('mongodb+srv://gabrielmatthewlabariento_db_user:G9byr7hzoYYjg21O@kampus.qoghnlo.mongodb.net/?appName=Kampus')
+mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("Connected to MongoDB"))
     .catch(err => console.log(err));
 
-app.listen(3001, () => {
+app.listen(process.env.PORT, () => {
     console.log('Server running on port 3001')
 })

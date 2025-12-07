@@ -6,7 +6,7 @@ function Home(){
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch(`http:localhost://localhost:{}/api/listings`)
+        fetch(`http://localhost:${import.meta.env.VITE_PORT}/api/listings`)
             .then(res => res.json())
             .then(data => {
                 setListings(data);

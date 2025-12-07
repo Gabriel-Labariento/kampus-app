@@ -16,11 +16,12 @@ app.use(express.json())
 app.post('/api/listings', async(req, res) => {
     try {
         const newListing = new Listing(req.body)
-
         const savedListing = await newListing.save()
-
+        console.log("Saved to db:", savedListing)
+        res.status(200).json(savedListing)
         res.status(200).json(savedListing);
     } catch (error) {
+        console.error("Error saving:", error)
         res.status(500).json({error: error.message})
     }
 })
@@ -41,3 +42,4 @@ mongoose.connect(process.env.MONGO_URI)
 app.listen(process.env.PORT, () => {
     console.log('Server running')
 })
+

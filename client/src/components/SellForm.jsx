@@ -1,6 +1,8 @@
 import React, {useState} from 'react'
+import { useNavigate } from 'react-router-dom';
 
 function SellForm() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         title: '',
         price: '',
@@ -28,14 +30,18 @@ function SellForm() {
     }
 
     async function handleSubmit(e) {
-        e.preventDefaule();
+        e.preventDefault();
         setLoading(true)
-
+        console.log("1. Form submitted");
+        
         try {
             // Uplaod image to Cloudinary
             const imageFormData = new FormData()
             imageFormData.append("file", formData.img)
             imageFormData.append("upload_preset", import.meta.env.VITE_UPLOAD_PRESET) 
+            
+            console.log('imageFormData :>> ', imageFormData);
+            console.log("2. Starting Cloudinary Upload...");
             
             // Send to Cloudinary API
             const cloudName = import.meta.env.VITE_CLOUD_NAME
@@ -44,13 +50,15 @@ function SellForm() {
                 body: imageFormData
             }) 
 
+            console.log("3. Cloudinary Response Status:", cloudinaryRes.status);
+            
             const cloudinaryData = await cloudinaryRes.json()
             const imageUrl = cloudinaryData.secure_url;
 
             console.log("Image Uploaded:", imageUrl);
 
             // Send data to backend
-            const res = await fetch('', {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/listings`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -65,6 +73,7 @@ function SellForm() {
             if (res.ok) {
                 alert("Item listed successfully!")
                 setFormData({title: '', price: '', img: null, category: 'Uniforms'})
+                navigate('/')
             }
 
         } catch (error) {

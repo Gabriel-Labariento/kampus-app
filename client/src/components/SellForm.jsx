@@ -1,8 +1,11 @@
 import React, {useState} from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useUser } from "@clerk/clerk-react"
 
 function SellForm() {
+    const {user} = useUser()
     const navigate = useNavigate();
+    
     const [formData, setFormData] = useState({
         title: '',
         price: '',
@@ -66,7 +69,9 @@ function SellForm() {
                     price: formData.price,
                     category: formData.category,
                     imageUrl: imageUrl,
-                    school: 'UP Diliman'
+                    school: 'UP Diliman',
+                    sellerEmail: user.primaryEmailAddress.emailAddress,
+                    sellerImage: user.imageUrl
                 })
             })
 

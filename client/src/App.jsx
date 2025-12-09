@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {BrowserRouter, Routes, Route, Link} from 'react-router-dom'
 import Home from './pages/Home'
 import SellForm from './components/SellForm'
+import MyListings from './pages/MyListings'
 import './App.css'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react'
 
@@ -25,6 +26,7 @@ function App() {
           {/* Show sell page if the user is signed in */}
           <SignedIn>
             <Link to="/sell" className='bg-black text-white px-4 py-3 rounded-md font-medium hover:bg-gray-800'>Sell Item</Link>
+            <Link to="/my-listings" className='text-gray-600 hover:text-blue-600 font-mediuim ml-4'>My Items</Link>
             <UserButton></UserButton>
           </SignedIn>
           </div>
@@ -37,6 +39,7 @@ function App() {
               <SellForm></SellForm>
             </div>
           }></Route>
+          <Route path='/my-listings' element={<MyListings />}></Route>
         </Routes>
       </div>
     </BrowserRouter>

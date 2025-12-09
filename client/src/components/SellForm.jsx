@@ -5,7 +5,7 @@ import { useUser } from "@clerk/clerk-react"
 function SellForm() {
     const {user} = useUser()
     const navigate = useNavigate();
-    
+
     const [formData, setFormData] = useState({
         title: '',
         price: '',
@@ -71,7 +71,8 @@ function SellForm() {
                     imageUrl: imageUrl,
                     school: 'UP Diliman',
                     sellerEmail: user.primaryEmailAddress.emailAddress,
-                    sellerImage: user.imageUrl
+                    sellerImage: user.imageUrl,
+                    clerkUserId: user.id
                 })
             })
 

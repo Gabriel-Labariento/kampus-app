@@ -12,7 +12,11 @@ const ListingSchema = new mongoose.Schema({
     imageUrl: String,
     sellerEmail: String,
     school: {type: String, default: 'UP/DLSU/UST/ADMU'},
-
+    clerkUserId: {
+        type: String,
+        required: true,
+        index: true // Add indexing for faster lookups
+    }
 }, {timestamps: true})
 
 module.exports = mongoose.model("Listing", ListingSchema)

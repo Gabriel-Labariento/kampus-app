@@ -32,14 +32,23 @@ app.get('/api/listings', async(req, res) => {
         let query = {}
 
         if (search) {
-            query.title = {$regex: search, $options: 'i'}
+            const searchTerms = search.trim().split(/\s+/)
+
+            const regexConditions = searchTerms.map(term => {
+                $or: [
+                    {title: {$regex: term, $options: 'i'}},
+                    {description: {$regex: term, $options: 'i'}}
+                ]
+            });
+            
+            query.$and = regexConditions;
         }
 
         if (category && category !== 'All') {
             query.category = category;
         }
 
-        const listings = (await Listing.find(query)).toSorted({createdAt: -1})
+        const listings = await Listing.find(query).sort({createdAt: -1})
 
        res.status(200).json(listings);
     } catch (error) {
@@ -55,6 +64,20 @@ app.get('/api/listings/user/:userId', async(req, res) => {
         res.status(200).json(userListings)
     } catch (error) {
         res.status(500).json({error: "Could not fetch listings for user."})
+    }
+})
+
+app.get('/api/listings/:itemId', async(req, res) => {
+    try {
+        const listing = await Listing.findById(req.params.itemId);
+
+        if (!listing) {
+            return res.status(404).json({error: "Item not found"})
+        }
+
+        res.status(200).json(listing)
+    } catch (error) {
+        res.status(500).json({error: "Server error"})
     }
 })
 

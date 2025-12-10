@@ -5,6 +5,7 @@ import SellForm from './components/SellForm'
 import MyListings from './pages/MyListings'
 import './App.css'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react'
+import ListingDetails from './pages/ListingDetails'
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             </div>
           }></Route>
           <Route path='/my-listings' element={<MyListings />}></Route>
+          <Route path='/listing/:itemId' element={<ListingDetails />}></Route>
         </Routes>
       </div>
     </BrowserRouter>

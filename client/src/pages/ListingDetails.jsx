@@ -43,6 +43,9 @@ function ListingDetails(){
                     <p className="text-2xl text-blue-600 font-semibold mt-1">
                         ₱{item.price.toLocaleString()}
                     </p>
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded ml-2">
+                        {item.condition}
+                    </span>
                     <p className="text-gray-500 text-sm mt-1">Posted at: {item.school}</p>
                 </div>
 

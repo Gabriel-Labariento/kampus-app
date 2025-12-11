@@ -16,7 +16,8 @@ const ListingSchema = new mongoose.Schema({
         type: String,
         required: true,
         index: true // Add indexing for faster lookups
-    }
+    },
+    condition: { type: String, enum: ['Brand New', 'Like New', 'Used - Good', 'Well Used'] }
 }, {timestamps: true})
 
 module.exports = mongoose.model("Listing", ListingSchema)

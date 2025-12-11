@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 
 function ListingCard({listing}){
     return (
-        <div className='border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white'>
+        <div className='group border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full cursor-pointer'>
             
             {/* Image Section */}
-            <Link to={`/listing/${listing._id}`} className='h-48 overflow-hidden bg-gray-200 block'>
+            <Link to={`/listing/${listing._id}`} className='h-48 overflow-hidden bg-gray-100 relative'>
                 <img 
                     src={listing.imageUrl} 
                     alt={listing.title}
-                    className='w-full h-full object-cover' 
+                    className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300' 
                 />
             </Link>
             

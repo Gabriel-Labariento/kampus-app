@@ -1,12 +1,15 @@
 import React, {useEffect, useState} from 'react'
 import { useUser } from '@clerk/clerk-react'
 import ListingCard from '../components/ListingCard'
+import toast from 'react-hot-toast'
+import { confirmToast } from '../components/confirmToast'
 
 function MyListings(){
     const {user, isLoaded} = useUser()
     const [myItems, setMyItems] = useState([])
     const [loading, setLoading] = useState(true);
 
+    if (!isLoaded) return <div className='p-10 text-center'>Loading account...</div>
     useEffect(() => {
         if (!isLoaded || !user) return;
 
@@ -21,7 +24,8 @@ function MyListings(){
     }, [isLoaded, user])
 
     const handleDelete = async(itemId) => {
-        if (!confirm("Are you sure you want to remove this item?")) return;
+        const confirmed = await confirmToast("Are you sure you want to remove this listing?")
+        if (!confirmed) return;
 
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/listings/${itemId}`, {
@@ -30,9 +34,10 @@ function MyListings(){
 
             if (res.ok) {
                 setMyItems(prev => prev.filter(item => item._id !== itemId))
+                toast.success("Successfully deleted item!")
             }
         } catch (error) {
-            alert("Failed to delete")
+            toast.error("Failed to delete")
         }
     }
 

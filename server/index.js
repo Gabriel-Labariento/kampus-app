@@ -13,8 +13,19 @@ const app = express();
 app.use(cors())
 app.use(express.json())
 
+const isStudentEmail = (email) => {
+    const allowed = ["@up.edu.ph",
+    "@student.ateneo.edu",
+    "@dlsu.edu.ph",
+    "@ust.edu.ph"]
+
+    return allowed.some(domain => email.endsWith(domain));
+}
+
 app.post('/api/listings', async(req, res) => {
     try {
+
+        if (!isStudentEmail(req.body.sellerEmail)) return res.status(403).json({error: "Invalid University Email Domain"})
         const newListing = new Listing(req.body)
         const savedListing = await newListing.save()
         console.log("Saved to db:", savedListing)
@@ -34,12 +45,12 @@ app.get('/api/listings', async(req, res) => {
         if (search) {
             const searchTerms = search.trim().split(/\s+/)
 
-            const regexConditions = searchTerms.map(term => {
+            const regexConditions = searchTerms.map(term => ({
                 $or: [
                     {title: {$regex: term, $options: 'i'}},
                     {description: {$regex: term, $options: 'i'}}
                 ]
-            });
+            }));
             
             query.$and = regexConditions;
         }

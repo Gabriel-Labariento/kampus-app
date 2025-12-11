@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useUser } from "@clerk/clerk-react"
+import toast from 'react-hot-toast';
 
 function SellForm() {
     const {user} = useUser()
@@ -77,22 +78,22 @@ function SellForm() {
             })
 
             if (res.ok) {
-                alert("Item listed successfully!")
+                toast.success("Item listed successfully!")
                 setFormData({title: '', price: '', img: null, category: 'Uniforms'})
                 navigate('/')
             }
 
         } catch (error) {
             console.error("Error uploading:", error)
-            alert("Something went wrong")
+            toast.error("Something went wrong")
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} className='flex flex-col gap-4 p-4 border rounded shadow-md max-w-sm'>
-            <h2 className='text-xl font-bold'>Sell an Item</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 border rounded-xl shadow-lg max-w-md mx-auto mt-10 bg-white">
+            <h2 className='text-2xl font-bold text-gray-800 mb-4 text-center'>Sell an Item</h2>
             <label className="flex flex-col" htmlFor="title">Title:
                 <input  name='title' 
                         type="text" 
@@ -118,7 +119,14 @@ function SellForm() {
                     <option value="Electronics">Electronics</option>
                 </select>
             </label>
-
+            <label className="flex flex-col">
+                Condition:
+                <select name="condition" value={formData.condition} onChange={handleChange} className="border p-2 rounded">
+                    <option value="Like New">Like New</option>
+                    <option value="Used - Good">Used - Good</option>
+                    <option value="Well Used">Well Used</option>
+                </select>
+            </label>
             <label className="flex flex-col" htmlFor="img">Image:
                 <input  name="img"
                         type="file" 

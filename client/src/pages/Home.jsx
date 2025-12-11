@@ -13,26 +13,28 @@ function Home(){
     const fetchListings = () => {
         setLoading(true);
 
-        let url = `${import.meta.env.VITE_API_URL}/api/listings?`
+        const params = new URLSearchParams();
 
-        if (searchTerm) url += `search=${searchTerm}`
-        if (selectedCategory !== "All") url += `category=${selectedCategory}`
+        if (searchTerm) params.append('search', searchTerm)
+        if (selectedCategory && selectedCategory !== "All") params.append('category', selectedCategory)
+        
+        let url = `${import.meta.env.VITE_API_URL}/api/listings?${params.toString()}`
 
         fetch(url)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to fetch");
+                return res.json();
+            })
             .then(data => {
-                setListings(data)
-                setLoading(false)
+                setListings(data);
+                setLoading(false);
             })
             .catch(err => {
-                console.error(err)
-                setLoading(false)
-            })
-    }
+                console.error("Fetch error:", err);
+                setLoading(false);
+            });
 
-    useEffect(() => {
-        fetchListings();
-    }, [])
+    }
 
     useEffect(() => {
         fetchListings();
@@ -43,6 +45,25 @@ function Home(){
         fetchListings();
     }
 
+    const handleClear = () => {
+        setSearchTerm("")
+        setSelectedCategory("All")
+
+        setLoading(true);
+        fetch(`${import.meta.env.VITE_API_URL}/api/listings`)
+            .then(res => {
+                if (!res.ok) throw new Error("Failed!")
+                return res.json();
+            })
+            .then(data => {
+                setListings(data);
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false)
+            })
+    }
     if (loading) return <div className='p-8 text-center'>Loading Kampus items...</div>
 
     return (
@@ -76,7 +97,12 @@ function Home(){
 
             {/* Results */}
             {loading ? (
-                <p>Loading...</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {/* Show 8 fake cards while loading */}
+                        {[...Array(8)].map((_, index) => (
+                            <SkeletonCard key={index} />
+                    ))}
+                </div>
             ) : (
                 <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
                     {listings.length > 0 ? (
@@ -84,9 +110,19 @@ function Home(){
                             <ListingCard key={listing._id} listing={listing}></ListingCard>
                         ))
                     ) : (
-                        <p className='col-span-full text-center text-gray-500'>
-                            No items found matching "{searchTerm}"
-                        </p>
+                         <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                            <img src="/empty.svg" alt="No items" className="w-48 h-48 opacity-50 mb-4" />
+                            <h3 className="text-xl font-bold text-gray-700">No items found</h3>
+                            <p className="text-gray-500">Try changing your search terms or category.</p>
+                            
+                            <button 
+                                type='button'
+                                onClick={handleClear}
+                                className="mt-4 text-blue-600 font-semibold hover:underline"
+                            >
+                                Clear Filters
+                            </button>
+                        </div>
                     ) }
                 </div>
             )}

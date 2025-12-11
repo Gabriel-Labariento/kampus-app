@@ -22,7 +22,7 @@ function App() {
         {/* A. The Circular Icon */}
           <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shadow-sm group-hover:shadow-md transition-all duration-300">
               <img 
-                  src={"/public/Kampus Logo.svg"} 
+                  src="/public/Kampus Logo.svg" 
                   alt="Kampus Logo" 
                   className="w-full h-full object-cover" 
               />

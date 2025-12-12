@@ -9,6 +9,7 @@ import ListingDetails from './pages/ListingDetails'
 import {Toaster} from 'react-hot-toast'
 import StudentRoute from './components/StudentRoute'
 import Footer from './components/Footer'
+import logo from "./assets/kampus-logo.svg"
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
         {/* A. The Circular Icon */}
           <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shadow-sm group-hover:shadow-md transition-all duration-300">
               <img 
-                  src="/public/kampus-logo.svg" 
+                  src={logo} 
                   alt="Kampus Logo" 
                   className="w-full h-full object-cover" 
               />

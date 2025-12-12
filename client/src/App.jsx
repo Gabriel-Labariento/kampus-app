@@ -9,7 +9,7 @@ import ListingDetails from './pages/ListingDetails'
 import {Toaster} from 'react-hot-toast'
 import StudentRoute from './components/StudentRoute'
 import Footer from './components/Footer'
-import logo from "./assets/kampus-logo.svg"
+import logo from "/kampus-logo.svg"
 
 function App() {
   return (

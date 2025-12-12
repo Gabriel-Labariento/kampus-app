@@ -62,7 +62,7 @@ app.get('/api/listings', async(req, res) => {
             query.category = category;
         }
 
-        const listings = await Listing.find(query).sort({createdAt: -1})
+        const listings = await Listing.find(query).sort({createdAt: -1}).limit(20)
 
        res.status(200).json(listings);
     } catch (error) {
@@ -108,7 +108,10 @@ app.delete('/api/listings/:itemId', async(req, res) => {
     }
 })
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+})
     .then(() => console.log("Connected to MongoDB"))
     .catch(err => console.log(err));
 

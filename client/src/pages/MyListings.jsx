@@ -38,6 +38,8 @@ function MyListings(){
             if (res.ok) {
                 setMyItems(prev => prev.filter(item => item._id !== itemId))
                 toast.success("Successfully deleted item!")
+            } else {
+                toast.error("Failed to delete")
             }
         } catch {
             toast.error("Failed to delete")

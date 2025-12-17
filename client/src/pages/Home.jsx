@@ -56,6 +56,7 @@ function Home(){
     }, [debouncedSearchTerm, selectedCategory])
 
     useEffect(() => {
+        // Data fetching in useEffect is a valid pattern for this use case
         // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchListings();
         
@@ -69,7 +70,8 @@ function Home(){
 
     const handleSearch = (e) => {
         e.preventDefault();
-        // No need to call fetchListings here, it will be called automatically via useEffect
+        // Search is triggered automatically via useEffect when debouncedSearchTerm changes
+        // This handler just prevents form submission page reload
     }
 
     const handleClear = () => {

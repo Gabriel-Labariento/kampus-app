@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useCallback} from 'react'
 import { useUser } from '@clerk/clerk-react'
 import ListingCard from '../components/ListingCard'
 import toast from 'react-hot-toast'
@@ -9,8 +9,7 @@ function MyListings(){
     const [myItems, setMyItems] = useState([])
     const [loading, setLoading] = useState(true);
 
-    if (!isLoaded) return <div className='p-10 text-center'>Loading account...</div>
-    useEffect(() => {
+    const fetchMyListings = useCallback(() => {
         if (!isLoaded || !user) return;
 
         fetch(`${import.meta.env.VITE_API_URL}/api/listings/user/${user.id}`)
@@ -23,7 +22,11 @@ function MyListings(){
         .catch(err => console.error(err)); 
     }, [isLoaded, user])
 
-    const handleDelete = async(itemId) => {
+    useEffect(() => {
+        fetchMyListings();
+    }, [fetchMyListings])
+
+    const handleDelete = useCallback(async(itemId) => {
         const confirmed = await confirmToast("Are you sure you want to remove this listing?")
         if (!confirmed) return;
 
@@ -39,9 +42,11 @@ function MyListings(){
         } catch (error) {
             toast.error("Failed to delete")
         }
-    }
+    }, [])
 
+    if (!isLoaded) return <div className='p-10 text-center'>Loading account...</div>
     if (loading) return <div className='p-8'>Loading your stash...</div>
+    
     console.log('myItems :>> ', myItems);
     return (
         <div className='p-4 max-w-6xl mx-auto'>

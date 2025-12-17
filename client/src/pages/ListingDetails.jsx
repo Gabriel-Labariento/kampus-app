@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useCallback} from 'react'
 import {useParams, Link} from 'react-router-dom'
 import { useUser } from '@clerk/clerk-react'
 
@@ -8,7 +8,7 @@ function ListingDetails(){
     const [loading, setLoading] = useState(true)
     const {user} = useUser()
 
-    useEffect(() => {
+    const fetchItemDetails = useCallback(() => {
         fetch(`${import.meta.env.VITE_API_URL}/api/listings/${itemId}`)
             .then(res => res.json())
             .then(data => {
@@ -17,6 +17,10 @@ function ListingDetails(){
             })
             .catch(err => console.error(err))
     }, [itemId])
+
+    useEffect(() => {
+        fetchItemDetails();
+    }, [fetchItemDetails])
 
     if (loading) return <div className='p-8 text-center'>Loading details...</div>
     if (!item) return <div className='p-8 text-center'>Item not found.</div>
@@ -28,6 +32,7 @@ function ListingDetails(){
                     <img 
                         src={item.imageUrl} 
                         alt={item.title} 
+                        loading="lazy"
                         className="w-full h-96 object-cover bg-gray-100" 
                     />
                 </div>
@@ -61,7 +66,7 @@ function ListingDetails(){
                     <h3 className="font-bold text-sm text-gray-500 uppercase mb-2">Seller Info</h3>
                     <div className="flex items-center gap-3 mb-4">
                         {item.sellerImage && (
-                            <img src={item.sellerImage} alt="Seller" className="w-10 h-10 rounded-full" />
+                            <img src={item.sellerImage} alt="Seller" loading="lazy" className="w-10 h-10 rounded-full" />
                         )}
                         <div>
                             <p className="font-medium text-gray-900">{item.sellerEmail}</p>

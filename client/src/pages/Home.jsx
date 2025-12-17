@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useCallback} from 'react'
 import ListingCard from '../components/ListingCard'
 
 function Home(){
@@ -9,8 +9,8 @@ function Home(){
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("All")
 
-    // Reusable fetch function
-    const fetchListings = () => {
+    // Reusable fetch function wrapped in useCallback for performance
+    const fetchListings = useCallback(() => {
         setLoading(true);
 
         const params = new URLSearchParams();
@@ -34,11 +34,11 @@ function Home(){
                 setLoading(false);
             });
 
-    }
+    }, [searchTerm, selectedCategory])
 
     useEffect(() => {
         fetchListings();
-    }, [selectedCategory])
+    }, [selectedCategory, fetchListings])
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -48,22 +48,9 @@ function Home(){
     const handleClear = () => {
         setSearchTerm("")
         setSelectedCategory("All")
-
-        setLoading(true);
-        fetch(`${import.meta.env.VITE_API_URL}/api/listings`)
-            .then(res => {
-                if (!res.ok) throw new Error("Failed!")
-                return res.json();
-            })
-            .then(data => {
-                setListings(data);
-                setLoading(false)
-            })
-            .catch(err => {
-                console.error(err);
-                setLoading(false)
-            })
+        // fetchListings will be called automatically by useEffect when state changes
     }
+    
     if (loading) return <div className='p-8 text-center'>Loading Kampus items...</div>
 
     return (

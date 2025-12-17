@@ -46,23 +46,20 @@ app.get('/api/listings', async(req, res) => {
         let query = {}
 
         if (search) {
-            const searchTerms = search.trim().split(/\s+/)
-
-            const regexConditions = searchTerms.map(term => ({
-                $or: [
-                    {title: {$regex: term, $options: 'i'}},
-                    {description: {$regex: term, $options: 'i'}}
-                ]
-            }));
-            
-            query.$and = regexConditions;
+            // Use MongoDB text search for better performance with text index
+            query.$text = { $search: search }
         }
 
         if (category && category !== 'All') {
             query.category = category;
         }
 
-        const listings = await Listing.find(query).sort({createdAt: -1}).limit(20)
+        // Use lean() for better performance when we don't need Mongoose documents
+        const listings = await Listing.find(query)
+            .sort(search ? { score: { $meta: 'textScore' }, createdAt: -1 } : { createdAt: -1 })
+            .limit(20)
+            .lean()
+            .exec()
 
        res.status(200).json(listings);
     } catch (error) {
@@ -74,7 +71,12 @@ app.get('/api/listings/user/:userId', async(req, res) => {
     try {
         const userId = req.params.userId;
 
+        // Use lean() for better performance and add sorting
         const userListings = await Listing.find({clerkUserId: userId})
+            .sort({createdAt: -1})
+            .lean()
+            .exec()
+            
         res.status(200).json(userListings)
     } catch (error) {
         res.status(500).json({error: "Could not fetch listings for user."})
@@ -83,7 +85,8 @@ app.get('/api/listings/user/:userId', async(req, res) => {
 
 app.get('/api/listings/:itemId', async(req, res) => {
     try {
-        const listing = await Listing.findById(req.params.itemId);
+        // Use lean() for better performance
+        const listing = await Listing.findById(req.params.itemId).lean().exec();
 
         if (!listing) {
             return res.status(404).json({error: "Item not found"})
@@ -111,6 +114,8 @@ app.delete('/api/listings/:itemId', async(req, res) => {
 mongoose.connect(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
+    maxPoolSize: 10, // Maintain up to 10 socket connections
+    minPoolSize: 2,  // Maintain at least 2 socket connections
 })
     .then(() => console.log("Connected to MongoDB"))
     .catch(err => console.log(err));

@@ -24,7 +24,8 @@ function Home(){
         }
         
         // Create new abort controller for this request
-        abortControllerRef.current = new AbortController()
+        const controller = new AbortController()
+        abortControllerRef.current = controller
         
         setLoading(true);
 
@@ -35,7 +36,7 @@ function Home(){
         
         let url = `${import.meta.env.VITE_API_URL}/api/listings?${params.toString()}`
 
-        fetch(url, { signal: abortControllerRef.current.signal })
+        fetch(url, { signal: controller.signal })
             .then(res => {
                 if (!res.ok) throw new Error("Failed to fetch");
                 return res.json();
@@ -55,6 +56,7 @@ function Home(){
     }, [debouncedSearchTerm, selectedCategory])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchListings();
         
         // Cleanup: abort request if component unmounts
@@ -63,7 +65,7 @@ function Home(){
                 abortControllerRef.current.abort()
             }
         }
-    }, [selectedCategory, debouncedSearchTerm, fetchListings])
+    }, [fetchListings])
 
     const handleSearch = (e) => {
         e.preventDefault();

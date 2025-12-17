@@ -1,12 +1,10 @@
 import React, {useEffect, useState, useCallback} from 'react'
-import {useParams, Link} from 'react-router-dom'
-import { useUser } from '@clerk/clerk-react'
+import {useParams} from 'react-router-dom'
 
 function ListingDetails(){
     const {itemId} = useParams()
     const [item, setItem] = useState(null)
     const [loading, setLoading] = useState(true)
-    const {user} = useUser()
 
     const fetchItemDetails = useCallback(() => {
         fetch(`${import.meta.env.VITE_API_URL}/api/listings/${itemId}`)

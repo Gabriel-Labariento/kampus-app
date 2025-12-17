@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 
 export function confirmToast(message) {
   return new Promise((resolve) => {
-    const toastId = toast.custom((t) => (
+    toast.custom((t) => (
       <div className="bg-white p-4 rounded shadow-lg border w-64">
         <p className="text-sm">{message}</p>
 

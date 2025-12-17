@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useCallback, useRef} from 'react'
 import ListingCard from '../components/ListingCard'
+import { useDebounce } from '../hooks/useDebounce'
 
 function Home(){
     const [listings, setListings] = useState([])
@@ -8,19 +9,34 @@ function Home(){
     // Search states
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("All")
+    
+    // Debounce search term to avoid excessive API calls
+    const debouncedSearchTerm = useDebounce(searchTerm, 500)
+    
+    // Ref to store abort controller for canceling previous requests
+    const abortControllerRef = useRef(null)
 
-    // Reusable fetch function
-    const fetchListings = () => {
+    // Reusable fetch function wrapped in useCallback for performance
+    const fetchListings = useCallback(() => {
+        // Cancel previous request if it exists
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort()
+        }
+        
+        // Create new abort controller for this request
+        const controller = new AbortController()
+        abortControllerRef.current = controller
+        
         setLoading(true);
 
         const params = new URLSearchParams();
 
-        if (searchTerm) params.append('search', searchTerm)
+        if (debouncedSearchTerm) params.append('search', debouncedSearchTerm)
         if (selectedCategory && selectedCategory !== "All") params.append('category', selectedCategory)
         
         let url = `${import.meta.env.VITE_API_URL}/api/listings?${params.toString()}`
 
-        fetch(url)
+        fetch(url, { signal: controller.signal })
             .then(res => {
                 if (!res.ok) throw new Error("Failed to fetch");
                 return res.json();
@@ -30,40 +46,40 @@ function Home(){
                 setLoading(false);
             })
             .catch(err => {
-                console.error("Fetch error:", err);
-                setLoading(false);
+                // Ignore abort errors
+                if (err.name !== 'AbortError') {
+                    console.error("Fetch error:", err);
+                    setLoading(false);
+                }
             });
 
-    }
+    }, [debouncedSearchTerm, selectedCategory])
 
     useEffect(() => {
+        // Data fetching in useEffect is a valid pattern for this use case
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchListings();
-    }, [selectedCategory])
+        
+        // Cleanup: abort request if component unmounts
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort()
+            }
+        }
+    }, [fetchListings])
 
     const handleSearch = (e) => {
         e.preventDefault();
-        fetchListings();
+        // Search is triggered automatically via useEffect when debouncedSearchTerm changes
+        // This handler just prevents form submission page reload
     }
 
     const handleClear = () => {
         setSearchTerm("")
         setSelectedCategory("All")
-
-        setLoading(true);
-        fetch(`${import.meta.env.VITE_API_URL}/api/listings`)
-            .then(res => {
-                if (!res.ok) throw new Error("Failed!")
-                return res.json();
-            })
-            .then(data => {
-                setListings(data);
-                setLoading(false)
-            })
-            .catch(err => {
-                console.error(err);
-                setLoading(false)
-            })
+        // fetchListings will be called automatically by useEffect when state changes
     }
+    
     if (loading) return <div className='p-8 text-center'>Loading Kampus items...</div>
 
     return (

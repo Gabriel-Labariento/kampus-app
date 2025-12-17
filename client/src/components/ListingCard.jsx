@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 
-function ListingCard({listing}){
+const ListingCard = memo(function ListingCard({listing}){
     return (
         <div className='group border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full cursor-pointer'>
             
@@ -10,6 +10,7 @@ function ListingCard({listing}){
                 <img 
                     src={listing.imageUrl} 
                     alt={listing.title}
+                    loading="lazy"
                     className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300' 
                 />
             </Link>
@@ -35,5 +36,6 @@ function ListingCard({listing}){
             </div>
         </div>
     )
-}
+})
+
 export default ListingCard;

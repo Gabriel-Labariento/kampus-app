@@ -55,13 +55,17 @@ app.get('/api/listings', async(req, res) => {
         }
 
         // Use lean() for better performance when we don't need Mongoose documents
+        // Add projection to only select needed fields for better performance
         const listings = await Listing.find(query)
+            .select('title price category imageUrl school clerkUserId condition createdAt')
             .sort(search ? { score: { $meta: 'textScore' }, createdAt: -1 } : { createdAt: -1 })
             .limit(20)
             .lean()
             .exec()
 
-       res.status(200).json(listings);
+        // Set cache headers for better client-side performance
+        res.set('Cache-Control', 'public, max-age=60') // Cache for 1 minute
+        res.status(200).json(listings);
     } catch (error) {
         res.status(500).json({error: error.message})
     }

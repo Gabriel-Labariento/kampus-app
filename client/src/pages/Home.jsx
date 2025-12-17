@@ -1,5 +1,6 @@
-import React, {useEffect, useState, useCallback} from 'react'
+import React, {useEffect, useState, useCallback, useRef} from 'react'
 import ListingCard from '../components/ListingCard'
+import { useDebounce } from '../hooks/useDebounce'
 
 function Home(){
     const [listings, setListings] = useState([])
@@ -8,19 +9,33 @@ function Home(){
     // Search states
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("All")
+    
+    // Debounce search term to avoid excessive API calls
+    const debouncedSearchTerm = useDebounce(searchTerm, 500)
+    
+    // Ref to store abort controller for canceling previous requests
+    const abortControllerRef = useRef(null)
 
     // Reusable fetch function wrapped in useCallback for performance
     const fetchListings = useCallback(() => {
+        // Cancel previous request if it exists
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort()
+        }
+        
+        // Create new abort controller for this request
+        abortControllerRef.current = new AbortController()
+        
         setLoading(true);
 
         const params = new URLSearchParams();
 
-        if (searchTerm) params.append('search', searchTerm)
+        if (debouncedSearchTerm) params.append('search', debouncedSearchTerm)
         if (selectedCategory && selectedCategory !== "All") params.append('category', selectedCategory)
         
         let url = `${import.meta.env.VITE_API_URL}/api/listings?${params.toString()}`
 
-        fetch(url)
+        fetch(url, { signal: abortControllerRef.current.signal })
             .then(res => {
                 if (!res.ok) throw new Error("Failed to fetch");
                 return res.json();
@@ -30,19 +45,29 @@ function Home(){
                 setLoading(false);
             })
             .catch(err => {
-                console.error("Fetch error:", err);
-                setLoading(false);
+                // Ignore abort errors
+                if (err.name !== 'AbortError') {
+                    console.error("Fetch error:", err);
+                    setLoading(false);
+                }
             });
 
-    }, [searchTerm, selectedCategory])
+    }, [debouncedSearchTerm, selectedCategory])
 
     useEffect(() => {
         fetchListings();
-    }, [selectedCategory, fetchListings])
+        
+        // Cleanup: abort request if component unmounts
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort()
+            }
+        }
+    }, [selectedCategory, debouncedSearchTerm, fetchListings])
 
     const handleSearch = (e) => {
         e.preventDefault();
-        fetchListings();
+        // No need to call fetchListings here, it will be called automatically via useEffect
     }
 
     const handleClear = () => {
